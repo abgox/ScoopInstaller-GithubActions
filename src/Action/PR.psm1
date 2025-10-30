@@ -126,7 +126,9 @@ function Test-PRFile {
 
     $check = @()
     $invalid = @()
-    $schema = Get-Content -Path $MANIFESTS_SCHEMA -Raw
+
+    # $schema = Get-Content -Path $MANIFESTS_SCHEMA -Raw
+    $schema = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/abgox/schema/refs/heads/main/schemas/scoop-manifest.zh-CN.json"
     foreach ($f in $File) {
         Write-Log "Starting $($f.filename) checks"
 

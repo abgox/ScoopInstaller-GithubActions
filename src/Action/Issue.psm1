@@ -109,6 +109,7 @@ function Test-Hash {
             # Try direct push
             try {
                 Write-LogInfo 'Commiting fix directly'
+                Invoke-Git -GitArgs @('pull', '--rebase', 'origin', $masterBranch)
                 Invoke-Git -GitArgs @('push')
             } catch {
                 Write-LogInfo 'Direct push failed. Probably protected branch. Will try to create PR instead.'

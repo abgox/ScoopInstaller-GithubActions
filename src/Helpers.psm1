@@ -112,11 +112,6 @@ function Initialize-NeededConfiguration {
     git remote 'set-url' --push origin $rem
 
     scoop config USE_EXTERNAL_7ZIP $true
-    scoop install 'hub' -g
-    if (-not $env:HUB_VERBOSE) {
-        $env:HUB_VERBOSE = '1'
-        [System.Environment]::SetEnvironmentVariable('HUB_VERBOSE', $env:HUB_VERBOSE, 'Machine')
-    }
 
     # Log all environment variables
     Write-LogInfo 'Environment' (Get-EnvironmentVariable)

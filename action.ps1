@@ -1,21 +1,28 @@
 # Set Global Preference
 $Global:ErrorActionPreference = 'Continue'
+$Global:VerbosePreference = 'SilentlyContinue'
 
 # Import all modules
 Join-Path $PSScriptRoot 'src' | Get-ChildItem -File | Select-Object -ExpandProperty Fullname | Import-Module
 
+Write-Host
+Write-Host '::group::Install Scoop and initialize configuration'
+
 Install-Scoop
 
-Test-NestedBucket
+# Test-NestedBucket
 Initialize-NeededConfiguration
 
-git config --get user.email
+Write-Host '::endgroup::'
+Write-Host
+
+# git config --get user.email
 Write-LogInfo 'Importing all modules'
 # Load all scoop's modules.
 # Dot sourcing needs to be done on highest scope possible to propagate into lower scopes
 Get-ChildItem (Join-Path $env:SCOOP_HOME 'lib') '*.ps1' | ForEach-Object { . $_.FullName }
 
-Write-LogInfo 'FULL EVENT' $GITHUB_EVENT_RAW
+# Write-LogInfo 'FULL EVENT' $GITHUB_EVENT_RAW
 
 Invoke-Action
 

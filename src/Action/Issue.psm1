@@ -224,11 +224,35 @@ function Initialize-Issue {
     }
 
     $problematicName, $problematicVersion, $problem = Resolve-IssueTitle $title
-    if (($null -eq $problematicName) -or
-        ($null -eq $problematicVersion) -or
-        ($null -eq $problem)
-    ) {
-        Write-LogInfo 'Not compatible issue title'
+
+    switch -Regex ($problem) {
+        'hash check failed' {
+
+        }
+        'download.*failed' {
+
+        }
+        '(decompress|extract).*error' {
+
+        }
+        default {
+            Write-LogInfo 'Not compatible issue title'
+            return
+        }
+    }
+
+    if ($null -eq $problematicName -or $problematicName.Contains(' ')) {
+        Add-Comment -ID $id -AppendLogLink -Message @(
+            '- Your issue title is not compatible with the bot.',
+            '- It cannot determine the manifest name from the issue title.',
+            '- Please create a new issue with the correct title format.',
+            '',
+            "   - format: ``package@version: <problem>``",
+            "   - example: ``abgox.PSCompletions@6.7.0: hash check failed``"
+        )
+        Add-Label -Id $id -Label 'invalid'
+        Remove-Label -Id $id -Label 'verify'
+        Close-Issue -ID $id
         return
     }
 
@@ -242,7 +266,7 @@ function Initialize-Issue {
         return
     }
 
-    if ($manifest_loaded.version -ne $problematicVersion) {
+    if ($null -ne $problematicVersion -and $manifest_loaded.version -ne $problematicVersion) {
         Add-Comment -ID $id -AppendLogLink -Message @(
             # TODO: Try to find specific version of arhived manifest
             "You reported version ``$problematicVersion``, but the latest available version is ``$($manifest_loaded.version)``."
@@ -255,7 +279,7 @@ function Initialize-Issue {
     }
 
     switch -Regex ($problem) {
-        'hash check' {
+        'hash check failed' {
             Write-LogInfo 'Detected issue type' 'Hash check failed.'
             Test-Hash $problematicName $id
         }

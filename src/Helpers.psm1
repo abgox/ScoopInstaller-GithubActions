@@ -289,14 +289,22 @@ function Resolve-IssueTitle {
     #>
     param([Parameter(Mandatory)][String] $Title)
 
-    # https://regex101.com/r/Fy8Jij/1
-    $result = $Title -match '(?<label>\[\w+\][\s:]*)?(?<name>.+)@(?<version>.+?):\s*(?<problem>.*)$'
-
-    if ($result) {
+    # name@version: problem
+    if ($Title -match '(?<label>\[\w+\][\s:]*)?(?<name>.+)@(?<version>.+?):\s*(?<problem>.*)$') {
         return $Matches.name, $Matches.version, $Matches.problem
-    } else {
-        return $null, $null, $null
     }
+
+    # name: problem
+    if ($Title -match '(?<label>\[\w+\][\s:]*)?(?<name>[^@]+):\s*(?<problem>.+)$') {
+        return $Matches.name, $null, $Matches.problem
+    }
+
+    # name@version
+    if ($Title -match '(?<label>\[\w+\][\s:]*)?(?<name>.+)@(?<version>.+)$') {
+        return $Matches.name, $Matches.version, $null
+    }
+
+    return $null, $null, $null
 }
 
 Export-ModuleMember -Function Write-LogInfo, Get-EnvironmentVariable, New-Array, Add-IntoArray, Initialize-NeededConfiguration, `

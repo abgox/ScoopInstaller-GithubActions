@@ -158,6 +158,8 @@ function Test-Hash {
                 }
             }
         }
+        $message += ''
+        $message += 'Please run `scoop update` and update/install application again.'
         Add-Comment -ID $IssueID -Message $message -AppendLogLink
     }
 }

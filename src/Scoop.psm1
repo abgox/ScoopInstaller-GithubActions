@@ -4,23 +4,33 @@ function Install-Scoop {
     <#
     .SYNOPSIS
         Install scoop using new installer.
+        Skips installation if scoop is already present (e.g. restored from cache).
     #>
-    Write-LogInfo 'Installing scoop'
-    $f = Join-Path $env:USERPROFILE 'install.ps1'
-    Invoke-WebRequest 'https://raw.githubusercontent.com/ScoopInstaller/Install/master/install.ps1' -UseBasicParsing -OutFile $f
-    & $f -RunAsAdmin
-    if ($env:SCOOP_REPO) {
-        Write-LogInfo "Switching to repository: ${env:SCOOP_REPO}"
-        scoop config scoop_repo $env:SCOOP_REPO
-        $needUpdate = $true
-    }
-    if ($env:SCOOP_BRANCH) {
-        Write-LogInfo "Switching to branch: ${env:SCOOP_BRANCH}"
-        scoop config scoop_branch $env:SCOOP_BRANCH
-        $needUpdate = $true
-    }
-    if ($needUpdate) {
-        scoop update
+    if (Test-Path $env:SCOOP_HOME) {
+        Write-LogInfo 'Scoop already installed, skipping fresh installation (cache hit)'
+        $shimsPath = Join-Path $env:SCOOP 'shims'
+        if ($env:PATH -notlike "*${shimsPath}*") {
+            $env:PATH = "$shimsPath;$env:PATH"
+        }
+    } else {
+        Write-LogInfo 'Installing scoop'
+        $f = Join-Path $env:USERPROFILE 'install.ps1'
+        Invoke-WebRequest 'https://raw.githubusercontent.com/ScoopInstaller/Install/master/install.ps1' -UseBasicParsing -OutFile $f
+        & $f -RunAsAdmin
+
+        if ($env:SCOOP_REPO) {
+            Write-LogInfo "Switching to repository: ${env:SCOOP_REPO}"
+            scoop config scoop_repo $env:SCOOP_REPO
+            $needUpdate = $true
+        }
+        if ($env:SCOOP_BRANCH) {
+            Write-LogInfo "Switching to branch: ${env:SCOOP_BRANCH}"
+            scoop config scoop_branch $env:SCOOP_BRANCH
+            $needUpdate = $true
+        }
+        if ($needUpdate) {
+            scoop update
+        }
     }
 }
 

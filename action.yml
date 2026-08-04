@@ -4,8 +4,15 @@ author: ScoopInstaller Maintainers
 runs:
   using: composite
   steps:
-    - run: ${{ github.action_path }}/action.ps1
+    - name: Cache Scoop
+      uses: actions/cache@v6
+      with:
+        path: ~/SCOOP
+        key: Scoop
+
+    - name: Run action.ps1
       shell: pwsh
+      run: ${{ github.action_path }}\action.ps1
 
 branding:
   icon: package
